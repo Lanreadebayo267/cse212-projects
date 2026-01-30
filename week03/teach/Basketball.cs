@@ -12,6 +12,10 @@
  */
 
 using Microsoft.VisualBasic.FileIO;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 public class Basketball
 {
@@ -19,18 +23,41 @@ public class Basketball
     {
         var players = new Dictionary<string, int>();
 
-        using var reader = new TextFieldParser("basketball.csv");
+        // Build a runtime-safe path to the CSV file
+        string filePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "basketball.csv"
+        );
+
+        using var reader = new TextFieldParser(filePath);
         reader.TextFieldType = FieldType.Delimited;
         reader.SetDelimiters(",");
-        reader.ReadFields(); // ignore header row
-        while (!reader.EndOfData) {
+        reader.ReadFields(); // skip header row
+
+        while (!reader.EndOfData)
+        {
             var fields = reader.ReadFields()!;
             var playerId = fields[0];
             var points = int.Parse(fields[8]);
+
+            if (players.ContainsKey(playerId))
+            {
+                players[playerId] += points;
+            }
+            else
+            {
+                players[playerId] = points;
+            }
         }
 
-        Console.WriteLine($"Players: {{{string.Join(", ", players)}}}");
+        var top10 = players
+            .OrderByDescending(p => p.Value)
+            .Take(10);
 
-        var topPlayers = new string[10];
+        Console.WriteLine("Top 10 Players by Total Points:");
+        foreach (var player in top10)
+        {
+            Console.WriteLine($"{player.Key}: {player.Value}");
+        }
     }
 }
