@@ -80,7 +80,12 @@ public class BinarySearchTree : IEnumerable<int>
 
     private void TraverseBackward(Node? node, List<int> values)
     {
-        // TODO Problem 3
+        if (node is not null)
+        {
+            TraverseBackward(node.Right, values);
+            values.Add(node.Data);
+            TraverseBackward(node.Left, values);
+        }
     }
 
     /// <summary>
@@ -92,6 +97,30 @@ public class BinarySearchTree : IEnumerable<int>
             return 0;
         return _root.GetHeight();
     }
+
+public static BinarySearchTree CreateTreeFromSortedList(List<int> sortedList)
+{
+    var tree = new BinarySearchTree();
+    BuildTree(sortedList, tree, 0, sortedList.Count - 1);
+    return tree;
+}
+
+private static void BuildTree(
+    List<int> sortedList,
+    BinarySearchTree tree,
+    int start,
+    int end)
+{
+    if (start > end)
+        return;
+
+    int mid = (start + end) / 2;
+
+    tree.Insert(sortedList[mid]);
+
+    BuildTree(sortedList, tree, start, mid - 1);
+    BuildTree(sortedList, tree, mid + 1, end);
+}
 
     public override string ToString()
     {
